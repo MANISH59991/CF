@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity >=0.7.0 <0.9.0;
+
 contract fin{
     address private owner;
     
     struct person{
+        string name;
         bool activist;
         bool withdraw;
         uint power;
@@ -19,6 +21,9 @@ mapping(address=>person) persons;
 mapping(string=>uint) ta;
 address[] public farmers;
 address[] public activists;
+string[] public farmersn;
+uint256 balance_;
+
 int Totalvotes;
 
 constructor() {
@@ -31,7 +36,7 @@ function deposit() payable public{
 
 }
 function withdraw() payable public{
-    uint256 balance_=address(this).balance;
+    
     uint256 actib=balance_/20;
     
     uint256 farmerb=balance_-actib;
@@ -41,7 +46,8 @@ function withdraw() payable public{
     address payable add=payable(addr);
     if (persons[msg.sender].farmer){
     uint256 farmery=farmerb*areaw[persons[msg.sender].area_name]*persons[msg.sender].area_size/ta[persons[addr].area_name]/100;
-    add.transfer(farmery);}
+    add.transfer(farmery);
+    }
     else if (persons[msg.sender].activist){
         add.transfer((persons[msg.sender].power/total_power())*actib);
         
@@ -64,6 +70,13 @@ function  voting(address candidate) public{
 
 
 }
+function can_withdraw() public{
+    require(msg.sender==owner);
+    for (uint o;o<farmers.length;o++){
+        persons[farmers[o]].withdraw=false;
+    }
+    balance_=address(this).balance;
+}
 function total_power() public returns (uint256 ){
     uint256 TotalPower ;
     for (uint j=0;j<activists.length;j++){
@@ -72,20 +85,32 @@ function total_power() public returns (uint256 ){
     }
     return TotalPower;
 }
-function declaring_farmer(address pfarmer,uint256 size,string memory name) public{
+function farmers_view()public view returns(string[]memory){
+    return farmersn;
+}
+function declaring_farmer(address pfarmer,uint256 size,string memory name,string memory namee) public{
     require(msg.sender==owner,"only owner can declare a farmer");
     persons[pfarmer].farmer=true;
     persons[pfarmer].activist=false;
     persons[pfarmer].power=1;
     persons[pfarmer].vote=pfarmer;
+    persons[pfarmer].withdraw=false;
     persons[pfarmer].weight=1;
     persons[pfarmer].area_size=size;
     persons[pfarmer].area_name=name;
+    persons[pfarmer].name=namee;
     ta[name]+=size;
     farmers.push(pfarmer);
+    farmersn.push(namee);
 
 
     
+}
+function name(address u)public view returns(string memory){
+              return persons[u].name;
+}
+function votes(address act) public view returns(uint){
+    return persons[act].power;
 }
 function declaring_activist(address acti) public{
     require(msg.sender==owner||msg.sender==acti);
